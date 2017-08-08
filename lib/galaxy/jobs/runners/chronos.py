@@ -54,6 +54,25 @@ def _write_logfile(logfile, msg):
         fil.write(msg)
 
 
+def _get_container_params(job_wrapper):
+    return {
+        'parameters': [
+            {
+                'key': 'label',
+                'value': 'galaxy_job_id=' + str(job_wrapper.job_id),
+            },
+            {
+                'key': 'label',
+                'value': 'galaxy_user_id=' + str(job_wrapper.user_id),
+            },
+            {
+                'key': 'label',
+                'value': 'galaxy_tool_id=' + job_wrapper.tool.id,
+            }
+        ]
+    }
+
+
 class ChronosJobRunner(AsynchronousJobRunner):
     runner_name = 'ChronosRunner'
     RUNNER_PARAM_SPEC_KEY = 'runner_param_specs'
@@ -258,6 +277,7 @@ class ChronosJobRunner(AsynchronousJobRunner):
         template['container']['type'] = 'DOCKER'
         template['container']['image'] = self._find_container(
             job_wrapper).container_id
+        template['container'].update(_get_container_params(job_wrapper))
         return template
 
     def _retrieve_job(self, job_id):
